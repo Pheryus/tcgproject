@@ -2,16 +2,15 @@
 using System.Collections;
 
 public class Deck {
-    const int size = 40;
-    ArrayList deck = new ArrayList();
+    int size;
+    public ArrayList deck = new ArrayList();
     Random r = new Random();
 
 	//construtor
-	public Deck (Card[] cards) {
+	public Deck (Card[] cards, int siz) {
+        size = siz;
         createDeck(cards);
-        printDeck();
         shuffleDeck();
-        printDeck();
 	}
 	
     void createDeck(Card[] cards){
@@ -23,6 +22,14 @@ public class Deck {
         for (int i = deck.Count - 1; i > 0; i--){
             int n = Random.Range(0, i + 1);
             Swap(i, n);
+        }
+        updateDeck();
+    }
+
+    void updateDeck() {
+        for (int i = 0; i < deck.Count;i++) {
+            Card card = (Card)deck[i];
+            card.translateCard(i);
         }
     }
 
@@ -45,5 +52,7 @@ public class Deck {
             card.printCard();
         }
     }
+
+
 
 }

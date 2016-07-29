@@ -8,6 +8,8 @@ public class Card {
     private string name, type, color, text;
     private GameObject go;
     private bool on_hand, on_play, on_grave;
+    private Renderer renderer;
+
     //construct
     public Card (int id, int cost, int? armor, int? load, int? time, int? power, string name, string type, string color, string text) {
         this.id = id;
@@ -27,8 +29,18 @@ public class Card {
         return id;
     }
 
+    public void setRenderer() {
+        renderer = go.GetComponent<Renderer>();
+        renderer.material.mainTexture = (Texture)Resources.Load("Cards/" + id.ToString());
+    }
+
     public void setGO(GameObject g){
         go = g;
+        setRenderer();
+    }
+
+    public GameObject getGO() {
+        return go;
     }
 
     public void printCard(){
@@ -38,4 +50,12 @@ public class Card {
     public void setOnHand(bool v){
         on_hand = v;
     }
+
+    public void translateCard(int id) {
+        Debug.Log(go.transform.position);
+        go.transform.Translate(Vector3.up * 0.05f * id);
+        Debug.Log(go.transform.position);
+    }
+
+
 }
