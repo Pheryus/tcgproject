@@ -52,9 +52,7 @@ public class Card {
     }
 
     public void translateCard(int id) {
-        Debug.Log(go.transform.position);
         go.transform.Translate(Vector3.up * 0.05f * id);
-        Debug.Log(go.transform.position);
     }
 
 

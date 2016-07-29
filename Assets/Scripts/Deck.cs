@@ -26,6 +26,7 @@ public class Deck {
         updateDeck();
     }
 
+    //função para modificar a posição de cada carta (chamar sempre que o deck for embaralhado)
     void updateDeck() {
         for (int i = 0; i < deck.Count;i++) {
             Card card = (Card)deck[i];
