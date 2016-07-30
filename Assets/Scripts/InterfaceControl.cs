@@ -27,21 +27,19 @@ public class InterfaceControl : MonoBehaviour {
         deck = new Deck(cards, dsize);
         setHandPosition();
         addHandCards();
-        print("teste\n");
         StartCoroutine(callHandCoroutine());
-        print("teste\n");
     }
 
     void setHandPosition() {
         hand_position = new GameObject();
-        hand_position.transform.position = new Vector3(22, 20, -5);
+        hand_position.transform.position = new Vector3(20, 25, -5);
     }
 
     //Gera um prefab para cada carta, e muda sua textura para cada id
     Card[] CreateGameObjects(Card[] cards) {
         for (int i = 0; i < dsize; i++) {
             //posiciona carta
-            GameObject go = (GameObject)Instantiate(prefab, new Vector3(69, 5.01f + i * 0.05f, -15.5f), new Quaternion(0, 180, 0, 0));
+            GameObject go = (GameObject)Instantiate(prefab, new Vector3(69, 5.01f + i * 0.05f, -15.5f), new Quaternion(0, 0, 0, 0));
             cards[i].setGO(go);
         }
         return cards;
@@ -56,20 +54,25 @@ public class InterfaceControl : MonoBehaviour {
     IEnumerator callHandCoroutine() {
         Debug.Log(hand.hand_cards.Count);
         for (int i = 0; i < hand.hand_cards.Count; i++) {
-            yield return StartCoroutine(animationCardtoHand(1.0f));
+            yield return StartCoroutine(animationCardtoHand(0.5f));
+            print("teste\n");
         }
     }
 
     IEnumerator animationCardtoHand(float time) {
 
         float rate = 1 / time;
-        //Quaternion rotate = new Quaternion();
+
         Vector3 startPos = deck.getTopCardPosition();
         for (float t = 0f; t < 1f; t += rate*Time.deltaTime) {
+            //load go from the hand
             GameObject go = hand.getGOInHand(hand.hand_cards.Count - 1);
+            //translate 
             go.transform.position = Vector3.Lerp(startPos, hand_position.transform.position, t);
+            //rotate the card after the middle of the distance
+            if (t > 0.5f)
+                go.transform.Rotate(Vector3.back * Time.deltaTime*rate*360);
             hand.setPositionInHand(hand.hand_cards.Count - 1, go.transform);
-            Debug.Log("Teste\n" + t);
             yield return null;
         }
     }
