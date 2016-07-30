@@ -51,8 +51,13 @@ public class Card {
         on_hand = v;
     }
 
-    public void translateCard(int id) {
+
+    public void translateCardInDeck(int id) { 
         go.transform.Translate(Vector3.up * 0.05f * id);
+    }
+    
+    public void setPosition(Vector3 pos) {
+        go.transform.position = pos;
     }
 
 

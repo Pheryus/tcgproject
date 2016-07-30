@@ -4,11 +4,13 @@ using System.Collections;
 public class Deck {
     int size;
     public ArrayList deck = new ArrayList();
+    int num_cards;
     Random r = new Random();
 
 	//construtor
 	public Deck (Card[] cards, int siz) {
         size = siz;
+        num_cards = size;
         createDeck(cards);
         shuffleDeck();
 	}
@@ -19,7 +21,7 @@ public class Deck {
     }
 
     void shuffleDeck(){
-        for (int i = deck.Count - 1; i > 0; i--){
+        for (int i = num_cards - 1; i > 0; i--){
             int n = Random.Range(0, i + 1);
             Swap(i, n);
         }
@@ -28,16 +30,20 @@ public class Deck {
 
     //função para modificar a posição de cada carta (chamar sempre que o deck for embaralhado)
     void updateDeck() {
-        for (int i = 0; i < deck.Count;i++) {
+        for (int i = 0; i < num_cards - 1; i++) {
             Card card = (Card)deck[i];
-            card.translateCard(i);
+            card.translateCardInDeck(i);
         }
     }
 
-    Card drawCard(){
-        Card card = (Card)deck[deck.Count - 1];
-        deck.RemoveAt(deck.Count -1);
-        return card;
+    public Card[] drawCards(int num){
+        Card[] cards = new Card[num];
+        for (int i = 0; i < num; i++) {
+            cards[i] = getTopCard();
+            deck.RemoveAt(num_cards - 1);
+            num_cards--;
+        }
+        return cards;
     }
 
     void Swap(int i, int n)
@@ -48,12 +54,19 @@ public class Deck {
     }
 
     void printDeck(){
-        for (int i = 0; i < deck.Count; i++){
+        for (int i = 0; i < num_cards - 1; i++){
             Card card = (Card) deck[i];
             card.printCard();
         }
     }
 
+    Card getTopCard() {
+        return (Card)deck[num_cards - 1];
+    }
 
+    public Vector3 getTopCardPosition() {
+        Card card = getTopCard();
+        return card.getGO().transform.position;
+    }
 
 }
