@@ -69,6 +69,7 @@ public class Card {
     public void setImage(Transform parent) {
 
         go.transform.SetParent(parent);
+        //erro aqui
         Image image = go.GetComponent<Image>();
         image.sprite = (Sprite)Resources.Load("Cards/" + id.ToString());
         
