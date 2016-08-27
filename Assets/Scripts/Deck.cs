@@ -14,7 +14,11 @@ public class Deck {
         createDeck(cards);
         shuffleDeck();
 	}
-	
+	/*
+    public Vector3 deckposition(int i) {
+        return new Vector3(3.5f, 0.24f + i*, -5.735f);
+    }
+    */
     void createDeck(Card[] cards){
         foreach(Card c in cards)
             deck.Add(c);
@@ -32,7 +36,7 @@ public class Deck {
     void updateDeck() {
         for (int i = 0; i < num_cards - 1; i++) {
             Card card = (Card)deck[i];
-            card.translateCardInDeck(i);
+           // card.translateCardInDeck(i);
         }
     }
 
@@ -64,9 +68,6 @@ public class Deck {
         return (Card)deck[num_cards - 1];
     }
 
-    public Vector3 getTopCardPosition() {
-        Card card = getTopCard();
-        return card.getGO().transform.position;
-    }
+
 
 }
