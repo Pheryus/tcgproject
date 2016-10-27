@@ -10,10 +10,11 @@ public class Hand : MonoBehaviour{
     //adding card to hand
     public void draw_card(Card card){
 
-        GameObject go = (GameObject)Instantiate(prefab, Vector3.zero, Quaternion.identity);
-        card.setGO(go);
-        card.setImage(this.gameObject.transform);
-        hand_cards.Add(card);
+        GameObject go =  (GameObject)Instantiate(prefab, Vector3.zero, Quaternion.identity);
+        go.GetComponent<CardInstance>().setCard(card);
+        go.GetComponent<CardInstance>().setImage(this.gameObject.transform);
+        hand_cards.Add(go);
+       
     }
     
 

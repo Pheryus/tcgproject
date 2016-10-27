@@ -10,22 +10,57 @@ public class Control : MonoBehaviour{
     Deck deck;
 
     public Hand referencetoHand;
-   
+
+    public Colors color;
+
+    public string turnControl = "";
     
 	// Use this for initialization
 	void Start () {
         db = new Database("cards.db", "SELECT * FROM cards WHERE id < 42");
         Card[] cards = db.getCards();
         deck = new Deck(cards, dsize);
-        Card[] draw = deck.drawCards(1);
+        Card[] draw = deck.drawCards(5);
         referencetoHand = GameObject.FindObjectOfType(typeof(Hand)) as Hand;
-        referencetoHand.draw_card(draw[0]);
+        for (int i=0; i<5;i++)
+            referencetoHand.draw_card(draw[i]);
+        color = new Colors();
+        Turn();
+
+
+
+    }
+
+    public void Turn() {
+        turnControl = "color";
+        color.ChooseColor();
+        DrawPhase();
 
     }
 
    
+    public void DrawPhase() {
+        turnControl = "draw";
+        Card[] card = deck.drawCards(1);
+        referencetoHand.draw_card(card[0]);
 
+    }
 
+    public void EndPhase() {
+        turnControl = "end";
+        Debug.Log("Acabou o turno!");
+        Process();
+        Debug.Log("Começou novo turno!");
+        Turn();
+    }
+
+    IEnumerator Process() {
+        yield return StartCoroutine(WaitTurn(5.0f));
+    }
+
+    IEnumerator WaitTurn(float duration) {
+        yield return new WaitForSeconds(duration);
+    }
 
     /*
     //Gera um prefab para cada carta, e muda sua textura para cada id

@@ -1,7 +1,5 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.UI;
-
 
 public class Effect {
 
@@ -24,6 +22,7 @@ public class Effect {
 
 public class Card {
 
+ 
     private int id, cost;
     private int? armor, load, time, power;
     private string name, type, color, text;
@@ -32,12 +31,6 @@ public class Card {
     private int actpow, acttime, actarmor;
 
     public Effect eff;
-    
-
-    private GameObject go;
-    
-
-    //SpriteRenderer[] sprites;
 
     //construct
     public Card (int id, int cost, int? armor, int? load, int? time, int? power, string name, string type, string color, string text) {
@@ -56,28 +49,11 @@ public class Card {
 
         //getting effects
         eff = CardEffects.getEffect(id, type);
+     
     }
 	
     public int getID(){
         return id;
     }
-
-    public void setGO(GameObject g) {
-        go = g;
-    }
-
-    public void setImage(Transform parent) {
-
-        go.transform.SetParent(parent);
-        //erro aqui
-        Image image = go.GetComponent<Image>();
-        image.sprite = (Sprite)Resources.Load("Cards/" + id.ToString());
-        
-    }
-
-    public void printCard() {
-        Debug.Log(id + name + text);
-    }
-
 
 }

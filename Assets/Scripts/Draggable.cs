@@ -7,11 +7,15 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
     public Transform parentToReturnTo = null;
     GameObject placeholder = null;
-    public bool isPlayed = false;
+    public bool isPlayed = false, played=false;
+
+    public string getControlInstance() {
+        return GameObject.Find("Control").GetComponent<Control>().turnControl;
+    }
 
     public void OnBeginDrag(PointerEventData eventData) {
-        
-        if (!isPlayed) {
+
+        if (!played && getControlInstance() == "play") {
             Debug.Log("Begging");
             placeholder = new GameObject();
             placeholder.transform.SetParent(this.transform.parent);
@@ -33,20 +37,20 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
 	public void OnDrag(PointerEventData eventData) {
         Debug.Log("Dragging");
-
-        this.transform.position = eventData.position;
+        if (!played && getControlInstance() == "play")
+            this.transform.position = eventData.position;
     }
 
     public void OnEndDrag(PointerEventData eventData) {
         Debug.Log("End of Dragging");
 
-        
         this.transform.SetParent(parentToReturnTo);
         this.transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
         GetComponent<CanvasGroup>().blocksRaycasts = true;
 
         Destroy(placeholder);
-        
+        if (isPlayed)
+            played = true;
     }
 
 }

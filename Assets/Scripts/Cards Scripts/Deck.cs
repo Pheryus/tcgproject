@@ -60,7 +60,7 @@ public class Deck {
     void printDeck(){
         for (int i = 0; i < num_cards - 1; i++){
             Card card = (Card) deck[i];
-            card.printCard();
+            //card.printCard();
         }
     }
 
