@@ -31,7 +31,9 @@ public class Control : MonoBehaviour{
 
     public void Turn() {
         turnControl = "color";
-        color.ChooseColor();
+        if (!color.ChooseColor()) {
+            EndColorPhase();
+        }
 
     }
 
@@ -40,12 +42,12 @@ public class Control : MonoBehaviour{
         turnControl = "draw";
         Card[] card = deck.drawCards(1);
         referencetoHand.draw_card(card[0]);
-
+        turnControl = "play";
     }
 
     public void EndColorPhase() {
-        turnControl = "play";
         color.EndColorPhase();
+        DrawPhase();
     }
 
 

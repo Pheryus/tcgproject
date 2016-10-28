@@ -23,14 +23,15 @@ public class Colors {
 
     }
     
-    public void ChooseColor() {
+    public bool ChooseColor() {
         if (TestEmptyPallete()) {
             ModifyingPallete();
             InstantiateImage();
+            return true;
         }
         else {
-            Debug.Log("aqui?");
             FillColors();
+            return false;
         }
                 
     }
