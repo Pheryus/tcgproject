@@ -27,14 +27,11 @@ public class Control : MonoBehaviour{
         color = new Colors();
         Turn();
 
-
-
     }
 
     public void Turn() {
         turnControl = "color";
         color.ChooseColor();
-        DrawPhase();
 
     }
 
@@ -46,11 +43,15 @@ public class Control : MonoBehaviour{
 
     }
 
+    public void EndColorPhase() {
+        turnControl = "play";
+        color.EndColorPhase();
+    }
+
+
     public void EndPhase() {
         turnControl = "end";
-        Debug.Log("Acabou o turno!");
         Process();
-        Debug.Log("Começou novo turno!");
         Turn();
     }
 
