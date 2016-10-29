@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.EventSystems;
 
 public class CardInstance : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler {
-    Card card = null;
+    public Card card = null;
 
     public void setCard(Card card) {
         this.card = card;

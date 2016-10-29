@@ -9,14 +9,15 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     GameObject placeholder = null;
     public bool isPlayed = false, played=false;
 
-    public string getControlInstance() {
-        return GameObject.Find("Control").GetComponent<Control>().turnControl;
+    public Control getControlInstance() {
+        return GameObject.Find("Control").GetComponent<Control>();
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
+        Control controlinstance = getControlInstance(); 
 
-        if (!played && getControlInstance() == "play") {
-            Debug.Log("Begging");
+        if (!played && controlinstance.turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject)) {
+            
             placeholder = new GameObject();
             placeholder.transform.SetParent(this.transform.parent);
             LayoutElement le = placeholder.AddComponent<LayoutElement>();
@@ -36,15 +37,18 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     }
 
 	public void OnDrag(PointerEventData eventData) {
-        Debug.Log("Dragging");
-        if (!played && getControlInstance() == "play")
+        Control controlinstance = getControlInstance();
+
+        if (!played && getControlInstance().turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject))
             this.transform.position = eventData.position;
     }
 
     public void OnEndDrag(PointerEventData eventData) {
         Debug.Log("End of Dragging");
+        Control controlinstance = getControlInstance();
 
-        if (getControlInstance() == "play") {
+        if (getControlInstance().turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject)) {
+            Debug.Log("oli");
             this.transform.SetParent(parentToReturnTo);
             this.transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
             GetComponent<CanvasGroup>().blocksRaycasts = true;

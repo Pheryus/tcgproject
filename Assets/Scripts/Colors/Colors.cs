@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Text.RegularExpressions;
+
 
 public class Colors {
 
@@ -22,7 +24,40 @@ public class Colors {
         FillColors();
 
     }
-    
+
+    public bool CheckIfItsPlayable(GameObject go) {
+        Card c = go.GetComponent<CardInstance>().card;
+        if (CheckIfHaveMana(c.cost2))
+            return true;
+        return false;
+    }
+
+    public bool CheckIfHaveMana(string mana, string additional_mana="") {
+
+        string resultString = Regex.Match(mana, @"\d+").Value;
+        int incolor = Int32.Parse(resultString);
+        int rcount = 0,  bcount = 0, gcount = 0, pcount = 0, ycount = 0;
+        foreach (char c in mana) {
+            if (c == 'r') rcount++;
+            if (c == 'b') bcount++;
+            if (c == 'g') gcount++;
+            if (c == 'y') ycount++;
+            if (c == 'p') pcount++;
+        }
+
+        int yourtotalmana = red + green + blue + yellow + purple;
+        
+        if (rcount <= red && bcount <= blue && gcount <= green && ycount <= yellow && pcount <= purple) {
+            yourtotalmana -= rcount + bcount + gcount + ycount + pcount;
+            if (yourtotalmana >= incolor)
+                return true;
+        }
+        
+
+        return false;
+    }
+
+
     public bool ChooseColor() {
         if (TestEmptyPallete()) {
             ModifyingPallete();
@@ -163,7 +198,6 @@ public class Colors {
 
     }
 
-
     public bool TestEmptyPallete() {
         GameObject[] go = GameObject.FindGameObjectsWithTag("Color");
         bool empty = false;
@@ -175,7 +209,6 @@ public class Colors {
         }
         return empty;
     }
-
 
     public void EndColorPhase() {
         ReturnPallete();
@@ -205,7 +238,5 @@ public class Colors {
         text.transform.parent = GameObject.Find("Canvas").transform;
         text.transform.localPosition = new Vector3(0, -30f, -270);
     }
-
-
 
 }

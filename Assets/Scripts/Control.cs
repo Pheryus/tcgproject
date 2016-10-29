@@ -37,7 +37,10 @@ public class Control : MonoBehaviour{
 
     }
 
-   
+
+
+
+
     public void DrawPhase() {
         turnControl = "draw";
         Card[] card = deck.drawCards(1);

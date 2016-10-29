@@ -25,7 +25,7 @@ public class Card {
  
     private int id, cost;
     private int? armor, load, time, power;
-    private string name, type, color, text;
+    public string name, type, color, text, cost2;
     
     //actual status
     private int actpow, acttime, actarmor;
@@ -36,7 +36,7 @@ public class Card {
     public Card (int id, int cost, int? armor, int? load, int? time, int? power, string name, string type, string color, string text) {
         this.id = id;
         this.cost = cost;
-
+        this.cost2 = "1g";
         this.load = load;
         this.time = time;
         acttime = this.time.GetValueOrDefault();
