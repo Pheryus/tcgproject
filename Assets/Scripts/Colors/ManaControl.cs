@@ -5,6 +5,8 @@ using System.Text.RegularExpressions;
 
 public class ManaControl {
 
+
+
     public bool CheckIfHaveMana(Colors c, string mana, string additional_mana = "") {
         string resultString = Regex.Match(mana, @"\d+").Value;
         int incolor = Int32.Parse(resultString);
