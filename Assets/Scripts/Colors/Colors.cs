@@ -2,25 +2,24 @@
 using UnityEngine.UI;
 using System.Collections;
 using System;
+using System.Text.RegularExpressions;
 
 
 public class Colors {
+    
 
     public int red, green, blue, yellow, purple;
     public int max_red, max_green, max_blue, max_yellow, max_purple;
 
-    public Transform pos;
-
-    public string color_pallete;
-
     CostChoice cost_choices;
     Vector3 whereWas;
-
+    Pallete pallete;
     ManaControl manacontrol;
     GameObject text;
 
-    public Colors(string color_pallete="rbggb") {
-        this.color_pallete = color_pallete;
+    public Colors() {
+        
+        pallete = new Pallete();
         FillColors();
     }
 
@@ -30,16 +29,42 @@ public class Colors {
 
     public bool CheckIfItsPlayable(GameObject go) {
         Card c = go.GetComponent<CardInstance>().card;
-        if (manacontrol.CheckIfHaveMana(this, c.cost2))
+        if (CheckIfHaveMana(c.cost2))
             return true;
+        return false;
+    }
+
+    public bool CheckIfHaveMana(string mana, string additional_mana = "") {
+
+        string resultString = Regex.Match(mana, @"\d+").Value;
+        int incolor = Int32.Parse(resultString);
+        int rcount = 0, bcount = 0, gcount = 0, pcount = 0, ycount = 0;
+        foreach (char o in mana) {
+            if (o == 'r') rcount++;
+            if (o == 'b') bcount++;
+            if (o == 'g') gcount++;
+            if (o == 'y') ycount++;
+            if (o == 'p') pcount++;
+        }
+
+        int yourtotalmana = red + green + blue + yellow + purple;
+
+        if (rcount <= red && bcount <= blue && gcount <= green && ycount <= yellow && pcount <= purple) {
+            yourtotalmana -= rcount + bcount + gcount + ycount + pcount;
+            if (yourtotalmana >= incolor)
+                return true;
+        }
+
         return false;
     }
 
 
 
+
+
     public bool ChooseColor() {
-        if (TestEmptyPallete()) {
-            ModifyingPallete();
+        if (pallete.TestEmptyPallete()) {
+            pallete.ModifyingPallete();
             InstantiateImage();
             return true;
         }
@@ -153,9 +178,9 @@ public class Colors {
         Color aux = Color.gray;
 
         foreach (GameObject g in go) {
-            g.GetComponent<ClickColor>().color = color_pallete[i];
+            g.GetComponent<ClickColor>().color = pallete.color_pallete[i];
 
-            switch (color_pallete[i]) {
+            switch (pallete.color_pallete[i]) {
                 case 'r':
                     aux = Color.red;
                     break;
@@ -176,36 +201,12 @@ public class Colors {
 
     }
 
-    public bool TestEmptyPallete() {
-        GameObject[] go = GameObject.FindGameObjectsWithTag("Color");
-        bool empty = false;
-        foreach (GameObject g in go) {
-            if (g.GetComponent<ClickColor>().color != 'e') {
-                empty = true;
-                break;
-            }
-        }
-        return empty;
-    }
-
     public void EndColorPhase() {
-        ReturnPallete();
+        pallete.RestartPallete();
         DestroyImage();
         RefreshColors();
     }
     
-    public void ModifyingPallete() {
-        GameObject go = GameObject.Find("Pallete");
-        whereWas = go.transform.position;
-        Transform whereGo = GameObject.Find("targetPallete").transform;
-        go.transform.position = whereGo.position;
-    }
-
-    public void ReturnPallete() {
-        GameObject go = GameObject.Find("Pallete");
-        go.transform.position = whereWas;   
-    }
-
     public void DestroyImage() {
         UnityEngine.Object.Destroy(text);
     }
