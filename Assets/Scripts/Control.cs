@@ -2,7 +2,7 @@
 using System.Collections;
 
 
-public class Control : MonoBehaviour{
+public class Control : MonoBehaviour {
     private int dsize = 40;
     //database
     private Database db;
@@ -34,7 +34,6 @@ public class Control : MonoBehaviour{
         if (!color.ChooseColor()) {
             EndColorPhase();
         }
-
     }
 
 

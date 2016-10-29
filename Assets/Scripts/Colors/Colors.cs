@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using System.Collections;
 using System;
-using System.Text.RegularExpressions;
 
 
 public class Colors {
@@ -14,48 +13,28 @@ public class Colors {
 
     public string color_pallete;
 
+    CostChoice cost_choices;
     Vector3 whereWas;
 
+    ManaControl manacontrol;
     GameObject text;
 
-    public Colors(string color_pallete="rrggb") {
-
+    public Colors(string color_pallete="rbggb") {
         this.color_pallete = color_pallete;
         FillColors();
+    }
+
+    public void CheckPossibilites() {
 
     }
 
     public bool CheckIfItsPlayable(GameObject go) {
         Card c = go.GetComponent<CardInstance>().card;
-        if (CheckIfHaveMana(c.cost2))
+        if (manacontrol.CheckIfHaveMana(this, c.cost2))
             return true;
         return false;
     }
 
-    public bool CheckIfHaveMana(string mana, string additional_mana="") {
-
-        string resultString = Regex.Match(mana, @"\d+").Value;
-        int incolor = Int32.Parse(resultString);
-        int rcount = 0,  bcount = 0, gcount = 0, pcount = 0, ycount = 0;
-        foreach (char c in mana) {
-            if (c == 'r') rcount++;
-            if (c == 'b') bcount++;
-            if (c == 'g') gcount++;
-            if (c == 'y') ycount++;
-            if (c == 'p') pcount++;
-        }
-
-        int yourtotalmana = red + green + blue + yellow + purple;
-        
-        if (rcount <= red && bcount <= blue && gcount <= green && ycount <= yellow && pcount <= purple) {
-            yourtotalmana -= rcount + bcount + gcount + ycount + pcount;
-            if (yourtotalmana >= incolor)
-                return true;
-        }
-        
-
-        return false;
-    }
 
 
     public bool ChooseColor() {
@@ -138,9 +117,8 @@ public class Colors {
     }
 
     public void RefreshTextColors(string name, Text t) {
-        if (name == "r") {
+        if (name == "r") 
             t.text = max_red.ToString();
-        }
         else if (name == "g")
             t.text = max_green.ToString();
         else if (name == "b")
