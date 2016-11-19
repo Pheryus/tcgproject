@@ -9,7 +9,10 @@ public class Colors {
     
 
     public int red, green, blue, yellow, purple;
+    public int temp_red, temp_green, temp_blue, temp_yellow, temp_purple;
     public int max_red, max_green, max_blue, max_yellow, max_purple;
+
+    public int rcount = 0, bcount = 0, gcount = 0, pcount = 0, ycount = 0;
 
     CostChoice cost_choices;
     Vector3 whereWas;
@@ -17,28 +20,67 @@ public class Colors {
     ManaControl manacontrol;
     GameObject text;
 
+
     public Colors() {
-        
         pallete = new Pallete();
         FillColors();
     }
 
-    public void CheckPossibilites() {
 
+    public int GetIncolorCostFromCard(string mana) {
+        string resultString = Regex.Match(mana, @"\d+").Value;
+        return Int32.Parse(resultString);
     }
 
-    public bool CheckIfItsPlayable(GameObject go) {
-        Card c = go.GetComponent<CardInstance>().card;
-        if (CheckIfHaveMana(c.cost2))
+    public bool CheckOnlyOneColorDisponible(int mana) {
+        if (blue >= mana && red + green + purple + yellow == 0) {
+            blue -= mana;
             return true;
+        }
+        else if (red >= mana && blue + green + purple + yellow == 0) {
+            red -= mana;
+            return true;
+        }
+        else if (green >= mana && blue + red + purple + yellow == 0) {
+            green -= mana;
+            return true;
+        }
+        else if (yellow >= mana && blue + red + purple + green == 0) {
+            yellow -= mana;
+            return true;
+        }
+        else if (purple >= mana && blue + red + green + yellow == 0) {
+            purple -= mana;
+            return true;
+        }
         return false;
     }
 
-    public bool CheckIfHaveMana(string mana, string additional_mana = "") {
+    public int CheckIfItsPlayable(Card c) { 
+        int incolor = GetIncolorCostFromCard(c.cost2);
+        if (CheckIfHaveMana(c.cost2, incolor) >= 0)
+            return 0;
+        return -1;
+    }
+    
+    public int SpendMana(GameObject go) {
+        Card c = go.GetComponent<CardInstance>().card;
+        int incolor = GetIncolorCostFromCard(c.cost2);
+        red -= rcount; blue -= bcount; green -= gcount; yellow -= ycount; purple -= pcount;
+        int yourtotalmana = red + green + blue + yellow + purple;
+        rcount = 0; bcount = 0; gcount = 0; ycount = 0; pcount = 0;
+        if (CheckOnlyOneColorDisponible(incolor)) {
+            return 0;
+        }
+        else
+            return incolor;
+    }
 
-        string resultString = Regex.Match(mana, @"\d+").Value;
-        int incolor = Int32.Parse(resultString);
-        int rcount = 0, bcount = 0, gcount = 0, pcount = 0, ycount = 0;
+    public void ResetManaCount() {
+        rcount = bcount = gcount = ycount = pcount = 0;
+    }
+
+    public int CheckIfHaveMana(string mana, int incolor) {
         foreach (char o in mana) {
             if (o == 'r') rcount++;
             if (o == 'b') bcount++;
@@ -48,18 +90,14 @@ public class Colors {
         }
 
         int yourtotalmana = red + green + blue + yellow + purple;
-
-        if (rcount <= red && bcount <= blue && gcount <= green && ycount <= yellow && pcount <= purple) {
-            yourtotalmana -= rcount + bcount + gcount + ycount + pcount;
-            if (yourtotalmana >= incolor)
-                return true;
+        //temp_red -= rcount; temp_blue -= bcount; temp_green -= gcount; temp_yellow -= ycount; temp_purple -= pcount;
+        if (red >= rcount && blue >= bcount && green >= gcount && yellow >= ycount && purple >= pcount) {
+            yourtotalmana -= rcount + gcount + bcount + ycount + pcount;
+            return yourtotalmana - incolor;
         }
 
-        return false;
+        return -1;
     }
-
-
-
 
 
     public bool ChooseColor() {
@@ -156,10 +194,15 @@ public class Colors {
 
     public void RefreshVariableColors() {
         red = max_red;
+        temp_red = red;
         green = max_green;
+        temp_green = green;
         blue = max_blue;
+        temp_blue = max_blue;
         yellow = max_yellow;
+        temp_yellow = max_yellow;
         purple = max_purple;
+        temp_purple = max_purple;
     }
 
     public void RefreshColors() {

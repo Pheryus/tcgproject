@@ -8,47 +8,65 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
     public Transform parentToReturnTo = null;
     GameObject placeholder = null;
     public bool isPlayed = false, played=false;
+    public bool isChoosingColor = false;
+
+    public bool canBeMoved = false;
+    public GameObject choice_color;
 
     public Control getControlInstance() {
         return GameObject.Find("Control").GetComponent<Control>();
     }
 
     public void OnBeginDrag(PointerEventData eventData) {
-        Control controlinstance = getControlInstance(); 
-
-        if (!played && controlinstance.turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject)) {
-            
-            placeholder = new GameObject();
-            placeholder.transform.SetParent(this.transform.parent);
-            LayoutElement le = placeholder.AddComponent<LayoutElement>();
-            le.preferredHeight = this.GetComponent<LayoutElement>().preferredHeight;
-            le.preferredWidth = this.GetComponent<LayoutElement>().preferredWidth;
-            le.flexibleHeight = 0;
-            le.flexibleWidth = 0;
-
-            placeholder.transform.SetSiblingIndex(this.transform.GetSiblingIndex());
-
-            parentToReturnTo = this.transform.parent;
-            this.transform.SetParent(this.transform.parent.parent);
-
-            GetComponent<CanvasGroup>().blocksRaycasts = false;
+        Control controlinstance = getControlInstance();
+        Card c = gameObject.GetComponent<CardInstance>().card;
+        if (controlinstance.turnControl == "play") {
+            if (controlinstance.color.CheckIfItsPlayable(c) >= 0) {
+                this.canBeMoved = true;
+                creatingPlaceholder();
+                creatingLayoutElement();
+                settingParent();
+                GetComponent<CanvasGroup>().blocksRaycasts = false;
+            }
+            else {
+                Debug.Log("Não consegue por algum motivo");
+            }
         }
 
     }
 
-	public void OnDrag(PointerEventData eventData) {
-        Control controlinstance = getControlInstance();
-
-        if (!played && getControlInstance().turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject))
-            this.transform.position = eventData.position;
+    private void creatingPlaceholder() {
+        placeholder = new GameObject();
+        placeholder.transform.SetParent(this.transform.parent);
+        placeholder.transform.SetSiblingIndex(this.transform.GetSiblingIndex());
     }
 
-    public void OnEndDrag(PointerEventData eventData) {
-        Debug.Log("End of Dragging");
+    private void creatingLayoutElement() {
+        LayoutElement le = placeholder.AddComponent<LayoutElement>();
+        le.preferredHeight = this.GetComponent<LayoutElement>().preferredHeight;
+        le.preferredWidth = this.GetComponent<LayoutElement>().preferredWidth;
+        le.flexibleHeight = 0;
+        le.flexibleWidth = 0;
+    }
+
+    private void settingParent() {
+        parentToReturnTo = this.transform.parent;
+        this.transform.SetParent(this.transform.parent.parent);
+    }
+
+    public void OnDrag(PointerEventData eventData) {
         Control controlinstance = getControlInstance();
 
-        if (getControlInstance().turnControl == "play" && controlinstance.color.CheckIfItsPlayable(gameObject)) {
-            Debug.Log("oli");
+        if (getControlInstance().turnControl == "play" && this.canBeMoved) {
+            this.transform.position = eventData.position;
+        }
+    }
+
+
+    public void OnEndDrag(PointerEventData eventData) {
+        Control controlinstance = getControlInstance();
+     
+        if (this.canBeMoved) {
             this.transform.SetParent(parentToReturnTo);
             this.transform.SetSiblingIndex(placeholder.transform.GetSiblingIndex());
             GetComponent<CanvasGroup>().blocksRaycasts = true;
@@ -56,8 +74,16 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
             Destroy(placeholder);
             if (isPlayed)
                 played = true;
-        }
 
+            this.canBeMoved = false;
+
+        }
+        controlinstance.color.ResetManaCount();
+    }
+    
+    public void CreateCostChoice() {
+     //  GameObject go = Instantiate(choice_color);
+    //    go.transform.parent = this.transform;
     }
 
 }

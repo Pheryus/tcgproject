@@ -2,27 +2,33 @@
 using System.Collections;
 using UnityEngine.EventSystems;
 
-public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler, IPointerExitHandler {
+public class DropZone : MonoBehaviour, IDropHandler, IPointerEnterHandler {
 
     public int max_size;
     private int size=0;
 
-	public void OnPointerEnter(PointerEventData eventData) {
-
-
+    public Control getControlInstance() {
+        return GameObject.Find("Control").GetComponent<Control>();
     }
 
-    public void OnPointerExit(PointerEventData eventData) {
-
+    public void OnPointerEnter(PointerEventData eventData) {
+        Debug.Log("esta em cima");
     }
+
 
     public void OnDrop(PointerEventData eventData) {
-        Draggable d = eventData.pointerDrag.GetComponent<Draggable>();
         
-        if (d != null & size + 1 <= max_size ) {
+        Draggable d = eventData.pointerDrag.GetComponent<Draggable>();
+        Control c = getControlInstance();
+        Debug.Log("Oloco");
+        if (d != null && size + 1 <= max_size ) {
+            Debug.Log("carta jogada");
             d.parentToReturnTo = this.transform;
-            d.isPlayed = true;
+            
             size++;
+
+
+            d.isPlayed = true;
         }
     }
 

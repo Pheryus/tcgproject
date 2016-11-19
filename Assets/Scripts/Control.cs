@@ -26,7 +26,6 @@ public class Control : MonoBehaviour {
             referencetoHand.draw_card(draw[i]);
         color = new Colors();
         Turn();
-
     }
 
     public void Turn() {
@@ -35,10 +34,6 @@ public class Control : MonoBehaviour {
             EndColorPhase();
         }
     }
-
-
-
-
 
     public void DrawPhase() {
         turnControl = "draw";
