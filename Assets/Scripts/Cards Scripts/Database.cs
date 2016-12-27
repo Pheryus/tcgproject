@@ -65,40 +65,36 @@ public class Database
             int id = reader.GetInt32(0);
             if (id != 34)
             {
-                string name = reader.GetString(1);
-                string type = reader.GetString(2);
-                string color = reader.GetString(3);
-                int cost = reader.GetInt32(4);
-                //inteiro que pode ser nulo
-                int? armor, time, power, load;
+                string name = reader.GetString(7);
+                string type = reader.GetString(12);
+                string color = reader.GetString(2);
+                string cost = reader.GetString(9);
+                
+                int armor, time, power;
                 string text;
 
-                if (reader.IsDBNull(5))
-                    armor = null;
+                if (reader.IsDBNull(1))
+                    armor = -1;
                 else
-                    armor = reader.GetInt32(5);
+                    Int32.TryParse(reader.GetString(1), out armor);
 
                 if (reader.IsDBNull(6))
-                    load = null;
+                    time = -1;
                 else
-                    load = reader.GetInt32(6);
+                    Int32.TryParse(reader.GetString(6), out time);
 
-                if (reader.IsDBNull(7))
-                    time = null;
-                else
-                    time = reader.GetInt32(7);
 
                 if (reader.IsDBNull(8))
-                    power = null;
+                    power = -1;
                 else
-                    power = reader.GetInt32(8);
+                    Int32.TryParse(reader.GetString(8), out power);
 
-                if (reader.IsDBNull(9))
+                if (reader.IsDBNull(11))
                     text = "";
                 else
-                    text = reader.GetString(9);
+                    text = reader.GetString(11);
 
-                cards[size] = new Card(id, cost, armor, load, time, power, name, type, color, text);
+                cards[size] = new Card(id, cost, armor, time, power, name, type, color, text);
                 size++;
             }
         }

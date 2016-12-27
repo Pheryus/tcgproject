@@ -10,7 +10,7 @@ public class ClickColor : MonoBehaviour {
 
         if (controlreference.turnControl != "color") {
             return;
-        }    
+        }
 
         if (Input.GetMouseButtonDown(0) && color != 'd' && color != 'e') {
             controlreference.color.AddColor(color);

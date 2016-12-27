@@ -1,264 +1,189 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
+using System.Collections.Generic;
 using System;
 using System.Text.RegularExpressions;
-
+using System.Linq;
 
 public class Colors {
-    
+    //cores atuais
+    private Dictionary<string, int> colors;
 
-    public int red, green, blue, yellow, purple;
-    public int temp_red, temp_green, temp_blue, temp_yellow, temp_purple;
-    public int max_red, max_green, max_blue, max_yellow, max_purple;
+    //cores já gastas
+    private Dictionary<string, int> spent_colors;
 
-    public int rcount = 0, bcount = 0, gcount = 0, pcount = 0, ycount = 0;
+    //limite de cores atual
+    private Dictionary<string, int> max_colors;
 
-    CostChoice cost_choices;
-    Vector3 whereWas;
+    //cores a serem gastas
+    private Dictionary<string, int> aux_colors;
+
+    //define cor de verdade mesmo (com siglas r,g,b,y,p)
+    private Dictionary<string, Color> real_color;
+
     Pallete pallete;
-    ManaControl manacontrol;
-    GameObject text;
 
+    public string zonePlayed;
 
-    public Colors() {
+    public Images images;
+
+    public Control controlreference;
+    public ShowMessages message;
+
+    public Colors(Control control, ShowMessages message) {
+        controlreference = control;
+        this.message = message;
+        InitializingDictionaries();
         pallete = new Pallete();
+        images = new Images();
         FillColors();
     }
 
+    public int GetActualColors(string key) {
+        return colors[key];
+    }
+
+    public int GetMaxColors(string key) {
+        return max_colors[key];
+    }
+
+    public int GetSpentColors(string key) {
+        return spent_colors[key];
+    }
+
+
+    public void ChangeSpentColor(string key, int x) {
+        spent_colors[key] += x;
+    }
+
+    private void InitializingDictionaries() {
+        colors = new Dictionary<string, int>();
+        max_colors = new Dictionary<string, int>();
+        real_color = new Dictionary<string, Color>();
+        spent_colors = new Dictionary<string, int>();
+        aux_colors = new Dictionary<string, int>();
+        foreach (char c in "rgbyp") {
+            colors.Add(c.ToString(), 0);
+            max_colors.Add(c.ToString(), 0);
+            spent_colors.Add(c.ToString(), 0);
+            aux_colors.Add(c.ToString(), 0);
+        }
+        real_color.Add("r", Color.red);
+        real_color.Add("g", Color.green);
+        real_color.Add("b", Color.blue);
+        real_color.Add("y", Color.yellow);
+        real_color.Add("p", Color.magenta);
+    }
 
     public int GetIncolorCostFromCard(string mana) {
         string resultString = Regex.Match(mana, @"\d+").Value;
+        if (resultString == "") 
+            return 0;
         return Int32.Parse(resultString);
     }
 
-    public bool CheckOnlyOneColorDisponible(int mana) {
-        if (blue >= mana && red + green + purple + yellow == 0) {
-            blue -= mana;
-            return true;
+    public int CheckOnlyOneColorDisponible(int mana) {
+        foreach (KeyValuePair<string, int> color in colors) {
+            if (color.Value >= mana && colors.Sum(x => x.Value) - color.Value == 0) {
+                colors[color.Key] -= mana;
+                return 0;
+            }
         }
-        else if (red >= mana && blue + green + purple + yellow == 0) {
-            red -= mana;
-            return true;
+        return mana;
+    }
+    
+
+
+    public void SpendMana() {
+        foreach (string key in colors.Keys.ToList()) {
+            aux_colors[key] = colors[key];
+            colors[key] -= spent_colors[key];
+            spent_colors[key] =  0;
         }
-        else if (green >= mana && blue + red + purple + yellow == 0) {
-            green -= mana;
-            return true;
+    }
+
+
+    //Controle de mana quando a carta é jogada. retorna 0 se nao existe opção de escolha. 
+    //Retorna o numero de mana faltando, caso tenha mais de uma opção. 
+    public int CardPlayed(Card c) {
+        SpendMana();
+        return CheckOnlyOneColorDisponible(GetIncolorCostFromCard(c.cost));
+    }
+
+    public bool CheckIfItsPlayable(Card c) {
+        return CheckIfHaveMana(c.cost, GetIncolorCostFromCard(c.cost));
+    }
+
+    public void ResetManaCount() {
+        foreach (string key in spent_colors.Keys.ToList())
+            spent_colors[key] = 0;
+    }
+
+    public void ReturnOriginalMana() {
+        foreach (string key in colors.Keys.ToList()) {
+            colors[key] = aux_colors[key];
+            Debug.Log(colors[key]);
+            aux_colors[key] = 0;
         }
-        else if (yellow >= mana && blue + red + purple + green == 0) {
-            yellow -= mana;
-            return true;
-        }
-        else if (purple >= mana && blue + red + green + yellow == 0) {
-            purple -= mana;
-            return true;
+    }
+
+    public bool CheckIfHaveMana(string mana, int incolor) {
+
+        foreach (char o in mana)
+            if (spent_colors.ContainsKey(o.ToString().ToLower()))
+                spent_colors[o.ToString().ToLower()]++;
+
+        int yourtotalmana = colors.Sum(x => x.Value);
+                
+        if (colors.All(x=> x.Value >= spent_colors[x.Key])) {
+            yourtotalmana -= spent_colors.Sum(x => x.Value);
+            if (yourtotalmana - incolor >= 0)
+                return true;
         }
         return false;
     }
 
-    public int CheckIfItsPlayable(Card c) { 
-        int incolor = GetIncolorCostFromCard(c.cost2);
-        if (CheckIfHaveMana(c.cost2, incolor) >= 0)
-            return 0;
-        return -1;
-    }
-    
-    public int SpendMana(GameObject go) {
-        Card c = go.GetComponent<CardInstance>().card;
-        int incolor = GetIncolorCostFromCard(c.cost2);
-        red -= rcount; blue -= bcount; green -= gcount; yellow -= ycount; purple -= pcount;
-        int yourtotalmana = red + green + blue + yellow + purple;
-        rcount = 0; bcount = 0; gcount = 0; ycount = 0; pcount = 0;
-        if (CheckOnlyOneColorDisponible(incolor)) {
-            return 0;
-        }
-        else
-            return incolor;
-    }
-
-    public void ResetManaCount() {
-        rcount = bcount = gcount = ycount = pcount = 0;
-    }
-
-    public int CheckIfHaveMana(string mana, int incolor) {
-        foreach (char o in mana) {
-            if (o == 'r') rcount++;
-            if (o == 'b') bcount++;
-            if (o == 'g') gcount++;
-            if (o == 'y') ycount++;
-            if (o == 'p') pcount++;
-        }
-
-        int yourtotalmana = red + green + blue + yellow + purple;
-        //temp_red -= rcount; temp_blue -= bcount; temp_green -= gcount; temp_yellow -= ycount; temp_purple -= pcount;
-        if (red >= rcount && blue >= bcount && green >= gcount && yellow >= ycount && purple >= pcount) {
-            yourtotalmana -= rcount + gcount + bcount + ycount + pcount;
-            return yourtotalmana - incolor;
-        }
-
-        return -1;
-    }
-
-
+    //Fase das Cores 
     public bool ChooseColor() {
         if (pallete.TestEmptyPallete()) {
             pallete.ModifyingPallete();
-            InstantiateImage();
+            message.InstantiateImage("Image1Prefab", "Canvas", new Vector3(0, -30f, -270));
             return true;
         }
         else {
             FillColors();
             return false;
         }
-                
     }
 
     public void AddColor(char c) {
-
-        switch (c) {
-            case 'r':
-                max_red++;
-                break;
-            case 'g':
-                max_green++;
-                break;
-            case 'b':
-                max_blue++;
-                break;
-            case 'y':
-                max_yellow++;
-                break;
-            case 'p':
-                max_purple++;
-                break;
-        }
-        IncreaseMaxColorImage(c);
-    }
-
-    public int getMaxColor(char c) {
-        if (c == 'r')
-            return max_red;
-        else if (c == 'g')
-            return max_green;
-        else if (c == 'b')
-            return max_blue;
-        else if (c == 'y')
-            return max_yellow;
-        else if (c == 'p')
-            return max_purple;
-        return 0;
-    }
-
-    public void setMaxColor(char c, int i) {
-        if (c == 'r') { 
-            max_red = i;
-        }
-        else if (c == 'g')
-            max_green = i;
-        else if (c == 'b')
-            max_blue = i;
-        else if (c == 'y')
-            max_yellow = i;
-        else if (c == 'p')
-            max_purple = i;
-    }
-
-    public void IncreaseMaxColorImage(char c) {
-        GameObject[] go = GameObject.FindGameObjectsWithTag("IdentifierColor");
-
-        foreach (GameObject g in go) {
-            if (g.name == c.ToString()) {
-                int i = getMaxColor(c);
-                Text t = g.transform.GetChild(2).GetComponent<Text>();
-                Int32.TryParse(t.text, out i);
-                i++;
-                t.text = i.ToString();
-                setMaxColor(c, i); 
-                break;
-            }
-        }
-    }
-
-    public void RefreshTextColors(string name, Text t) {
-        if (name == "r") 
-            t.text = max_red.ToString();
-        else if (name == "g")
-            t.text = max_green.ToString();
-        else if (name == "b")
-            t.text = max_blue.ToString();
-        else if (name == "p")
-            t.text = max_purple.ToString();
-        else if (name == "y")
-            t.text = max_yellow.ToString();
-    }
-
-    public void RefreshVariableColors() {
-        red = max_red;
-        temp_red = red;
-        green = max_green;
-        temp_green = green;
-        blue = max_blue;
-        temp_blue = max_blue;
-        yellow = max_yellow;
-        temp_yellow = max_yellow;
-        purple = max_purple;
-        temp_purple = max_purple;
+        max_colors[c.ToString()]++;
     }
 
     public void RefreshColors() {
-        GameObject[] go = GameObject.FindGameObjectsWithTag("IdentifierColor");
-        foreach (GameObject g in go) {
-            Text t = g.transform.GetChild(0).GetComponent<Text>();
-            RefreshTextColors(g.name, t);
-        }
-        RefreshVariableColors();
+        List<string> keys = new List<string>(colors.Keys);
+        foreach (string key in keys)
+            colors[key] = max_colors[key];
     }
 
     public void FillColors() {
-
         GameObject[] go = GameObject.FindGameObjectsWithTag("Color");
         int i = 0;
         Color aux = Color.gray;
 
         foreach (GameObject g in go) {
             g.GetComponent<ClickColor>().color = pallete.color_pallete[i];
-
-            switch (pallete.color_pallete[i]) {
-                case 'r':
-                    aux = Color.red;
-                    break;
-                case 'g':
-                    aux = Color.green;
-                    break;
-                case 'b':
-                    aux = Color.blue;
-                    break;
-                case 'y':
-                    aux = Color.yellow;
-                    break;
-            }
-
-            g.GetComponent<Renderer>().material.color = aux;
+            g.GetComponent<Renderer>().material.color = real_color[pallete.color_pallete[i].ToString()];
             i++;
         }
-
     }
 
     public void EndColorPhase() {
         pallete.RestartPallete();
-        DestroyImage();
+        message.DestroyImage("Image1Prefab");
         RefreshColors();
     }
     
-    public void DestroyImage() {
-        UnityEngine.Object.Destroy(text);
-    }
-
-    public void InstantiateImage() {
-        text = (GameObject)GameObject.Instantiate(Resources.Load("Image1Prefab"));
-        
-        text.transform.parent = GameObject.Find("Canvas").transform;
-        text.transform.localPosition = new Vector3(0, -30f, -270);
-    }
 
 }

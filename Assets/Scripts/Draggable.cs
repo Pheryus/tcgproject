@@ -7,7 +7,8 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
 
     public Transform parentToReturnTo = null;
     GameObject placeholder = null;
-    public bool isPlayed = false, played=false;
+    public bool played=false;
+    public string cardIs;
     public bool isChoosingColor = false;
 
     public bool canBeMoved = false;
@@ -21,15 +22,12 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         Control controlinstance = getControlInstance();
         Card c = gameObject.GetComponent<CardInstance>().card;
         if (controlinstance.turnControl == "play") {
-            if (controlinstance.color.CheckIfItsPlayable(c) >= 0) {
+            if (controlinstance.color.CheckIfItsPlayable(c)) {
                 this.canBeMoved = true;
                 creatingPlaceholder();
                 creatingLayoutElement();
                 settingParent();
                 GetComponent<CanvasGroup>().blocksRaycasts = false;
-            }
-            else {
-                Debug.Log("Não consegue por algum motivo");
             }
         }
 
@@ -72,7 +70,7 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
             GetComponent<CanvasGroup>().blocksRaycasts = true;
 
             Destroy(placeholder);
-            if (isPlayed)
+            if (cardIs == "played")
                 played = true;
 
             this.canBeMoved = false;
@@ -81,9 +79,4 @@ public class Draggable : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDra
         controlinstance.color.ResetManaCount();
     }
     
-    public void CreateCostChoice() {
-     //  GameObject go = Instantiate(choice_color);
-    //    go.transform.parent = this.transform;
-    }
-
 }

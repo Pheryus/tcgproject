@@ -8,7 +8,7 @@ public class Pallete {
     Vector3 whereWas; //The pallete's position
 
     //Create the pallete
-    public Pallete(string color_pallete = "rrggb") { //'r' = red, 'g' = green, 'b' = blue
+    public Pallete(string color_pallete = "rrggb") { 
         this.color_pallete = color_pallete;
     }
 
